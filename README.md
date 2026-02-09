@@ -1,2 +1,0 @@
-# logia
-Attendance system
