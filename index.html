@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logia Attendance - Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="center-wrapper">
+        <div class="auth-container glass-card fade-in">
+            <div class="brand-logo">
+                <img src="asset/logialogo.png" alt="Logia" style="max-width: 150px; height: auto;">
+            </div>
+            <h2 style="text-align: center; margin-bottom: 1.5rem;">Welcome Back</h2>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required placeholder="you@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
+
+                <button type="submit" class="btn" style="width: 100%;">Sign In</button>
+            </form>
+
+            <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem;">
+                Don't have an account? <a href="register.html">Register here</a>
+            </p>
+            <div id="error-message" style="color: var(--secondary-color); text-align: center; margin-top: 1rem;"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="js/auth.js" type="module"></script>
+    <script type="module">
+        import { login } from './js/auth.js';
+
+        const loginForm = document.getElementById('login-form');
+        const errorMessage = document.getElementById('error-message');
+
+        if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                errorMessage.textContent = '';
+
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const btn = loginForm.querySelector('button');
+
+                btn.disabled = true;
+                btn.textContent = 'Signing In...';
+
+                const { data, error } = await login(email, password);
+
+                if (error) {
+                    errorMessage.textContent = error.message;
+                    btn.disabled = false;
+                    btn.textContent = 'Sign In';
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

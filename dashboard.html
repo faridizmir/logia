@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logia Attendance - Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Load FontAwesome for Icons (Optional, but good for UI) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Dashboard specific styles */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem 0;
+            border-bottom: 1px solid var(--glass-border);
+            margin-bottom: 2rem;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .role-badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Employee Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .status-card {
+            text-align: center;
+        }
+
+        .status-indicator {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .btn-large {
+            padding: 1.5rem 3rem;
+            font-size: 1.2rem;
+        }
+
+        /* Kanban Board Style */
+        .kanban-board {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+        }
+
+        .kanban-column {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .kanban-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .kanban-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .kanban-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-body {
+            max-width: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation / Header -->
+    <div class="container">
+        <header class="dashboard-header fade-in">
+            <div class="brand-logo" style="margin-bottom: 0;">
+                <img src="asset/logialogo.png" alt="Logia" style="height: 50px;">
+            </div>
+            <div class="user-profile" id="user-profile-header">
+                <!-- User Info Injected Here -->
+                <span>Loading...</span>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="main-content" class="fade-in">
+            <!-- Dynamic Content Injected Here -->
+            <div style="text-align: center; margin-top: 5rem;">Loading Dashboard...</div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Absence Request Modal -->
+    <div id="absence-modal" class="modal-overlay">
+        <div class="glass-card modal-body">
+            <h3>New Absence Request</h3>
+            <form id="absence-form">
+                <div class="form-group">
+                    <label>Reason</label>
+                    <textarea id="absence-reason" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Dates</label>
+                    <div style="display: flex; gap: 1rem;">
+                        <input type="date" id="absence-start" required>
+                        <input type="date" id="absence-end" required>
+                    </div>
+                </div>
+                <div class="action-buttons" style="justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="app.closeModal('absence-modal')">Cancel</button>
+                    <button type="submit" class="btn">Submit Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="report-modal" class="modal-overlay">
+        <div class="glass-card modal-body">
+            <h3>Download Report</h3>
+            <p>Select report type:</p>
+            <div class="action-buttons" style="flex-direction: column;">
+                <button class="btn" onclick="app.generatedReport('summary')">Summary Report (PDF)</button>
+                <button class="btn btn-secondary" id="btn-raw-report" onclick="app.generatedReport('raw')">Full Report
+                    (PDF)</button>
+            </div>
+            <div style="margin-top: 1rem; text-align: right;">
+                <button class="btn btn-secondary" onclick="app.closeModal('report-modal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- Modules -->
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/db.js"></script>
+    <script type="module" src="js/ui.js"></script>
+    <script type="module" src="js/report.js"></script>
+    <script type="module" src="js/app.js"></script>
+
+    <script>
+        // Global access for inline onclicks (module isolation workaround)
+        window.app = {}; 
+    </script>
+</body>
+
+</html>

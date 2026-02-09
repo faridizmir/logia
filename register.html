@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logia Attendance - Register</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div id="success-popup"
+        style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--accent-color); color: white; padding: 15px 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 1000; display: none; opacity: 0; transition: opacity 0.5s ease;">
+        Successfully Registered! Redirecting...
+    </div>
+    <div class="center-wrapper">
+        <div class="auth-container glass-card fade-in">
+            <div class="brand-logo">
+                <img src="asset/logialogo.png" alt="Logia" style="max-width: 150px; height: auto;">
+            </div>
+            <h2 style="text-align: center; margin-bottom: 1.5rem;">Create Employee Account</h2>
+
+            <form id="register-form" onsubmit="event.preventDefault();">
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" required placeholder="Joe Mama">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required placeholder="you@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
+
+                <button type="submit" class="btn" style="width: 100%;">Register</button>
+            </form>
+
+            <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem;">
+                Already have an account? <a href="index.html">Log in here</a>
+            </p>
+            <div id="error-message" style="color: var(--secondary-color); text-align: center; margin-top: 1rem;"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="js/auth.js" type="module"></script>
+    <script type="module">
+        import { register } from './js/auth.js';
+
+        const registerForm = document.getElementById('register-form');
+        const errorMessage = document.getElementById('error-message');
+        const successPopup = document.getElementById('success-popup');
+
+        if (registerForm) {
+            console.log('Register form found, attaching listener');
+            // Remove the inline onsubmit handler via JS to let our custom logic run? 
+            // Actually, we can just attach 'submit' listener. It runs after inline handler.
+            // But inline handler prevents default, so we don't need to prevent default again unless we want to control it.
+            // Let's keep it simple: inline prevents reload. WE handle logic.
+
+            registerForm.addEventListener('submit', async (e) => {
+                // e.preventDefault(); // Already handled by inline, but good practice.
+                console.log('Register form submitted');
+                errorMessage.textContent = '';
+
+                const fullName = document.getElementById('fullName').value;
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const btn = registerForm.querySelector('button');
+
+                btn.disabled = true;
+                btn.textContent = 'Registering...';
+
+                try {
+                    const { data, error } = await register(email, password, fullName);
+
+                    if (error) {
+                        console.error('Registration error:', error);
+                        errorMessage.textContent = error.message;
+                        btn.disabled = false;
+                        btn.textContent = 'Register';
+                    } else {
+                        console.log('Registration success:', data);
+                        // Show success popup
+                        successPopup.style.display = 'block';
+                        // Trigger reflow to enable transition
+                        void successPopup.offsetWidth;
+                        successPopup.style.opacity = '1';
+
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 2000);
+                    }
+                } catch (err) {
+                    console.error('Unexpected error:', err);
+                    errorMessage.textContent = 'Unexpected error: ' + err.message;
+                    btn.disabled = false;
+                    btn.textContent = 'Register';
+                }
+            });
+        } else {
+            console.error('Register form not found!');
+        }
+    </script>
+</body>
+
+</html>
